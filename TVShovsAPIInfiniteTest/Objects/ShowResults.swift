@@ -9,7 +9,7 @@
 struct ShowResults : Codable{
     let tvShows: [Show]
     
-    enum CoddingKeys:String, CodingKey {
+    enum CodingKeys: String, CodingKey  {
         case tvShows = "tv_shows"
     }
 }
