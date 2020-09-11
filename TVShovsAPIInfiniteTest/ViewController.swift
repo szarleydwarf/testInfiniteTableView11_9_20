@@ -26,21 +26,54 @@ class ViewController: UIViewController {
     }
     
     func getShows() {
-        let urlString = self.apiUrl + self.apiShowList+self.apiShowPage+"1"
-        print("urlString \(apiUrl)")
+        let session = URLSession.shared
         guard let url = URL(string: self.apiUrl) else {return}
-        URLSession.shared.dataTask(with: url) { (data, response, error) in
-            print("data>\(data)")
-//            print("resp>\(response)")
-            print("error>\(error)")
-            guard let data = data else {return}
-            
-            let results = try? JSONDecoder().decode(ShowResults.self, from: data)
-            self.arrayOfShows = results?.tvShows ?? []
-            DispatchQueue.main.async {
-                self.tableView.reloadData()
+//        "https://learnappmaking.com/ex/users.json")!
+
+        let task = session.dataTask(with: url) { data, response, error in
+
+            if error != nil || data == nil {
+                print("Client error!")
+                return
             }
-        }.resume()
+
+            guard let response = response as? HTTPURLResponse, (200...299).contains(response.statusCode) else {
+                print("Server error!")
+                return
+            }
+
+            guard let mime = response.mimeType, mime == "application/json" else {
+                print("Wrong MIME type!")
+                return
+            }
+
+            do {
+                let json = try? JSONDecoder().decode(ShowResults.self, from: data!)
+                //JSONSerialization.jsonObject(with: data!, options: [])
+                self.arrayOfShows = json!.tvShows
+                print(json)
+            } catch {
+                print("JSON error: \(error.localizedDescription)")
+            }
+        }
+
+        task.resume()
+
+//        guard let url = URL(string: self.apiUrl) else {return}
+//
+//        URLSession.shared.dataTask(with: url) { (data, response, error) in
+//            print("data>\(data)")
+////            print("resp>\(response)")
+//            print("error>\(error)")
+//            guard let data = data else {return}
+//
+//            let results = try? JSONDecoder().decode(ShowResults.self, from: data)
+//            print("Results> \(results?.tvShows)")
+//            self.arrayOfShows = results?.tvShows ?? []
+//            DispatchQueue.main.async {
+//                self.tableView.reloadData()
+//            }
+//        }.resume()
     }
 }
 
